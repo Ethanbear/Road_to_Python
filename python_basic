@@ -1,0 +1,154 @@
+​
+前言
+以下是基于个人对python基础知识的一些理解，之前学习过程中经常会觉得混乱，比如有def和class什么却还要常用lambda？原因是lambda更简洁快速
+
+从结构分：
+python基础语法: print,list,dictionary,if判断语句,for loop, while True loop, 
+def function, class类
+数据分析-numpy: np.array, 矩阵计算,np.random函数, np做聚合计算
+数据分析-pandas:pd.Series, pd.DataFrame, df.groupby()['col'].sum()...,loc/iloc函数, 
+pd.to_datetime
+apply/lambda/map/zip/format函数
+数据分析-matplotlib和seaborn画图
+
+从功能分：
+将数据结构化: list,dictionary,tuple,np.array,pd.Series,pd.DataFrame
+判断并循环: if,for in, while True, lambda
+封装功能: def, class, lambda, apply, map
+聚合计算: sum, median, mean, quantile, count, size, cumsum
+画图:matplotlib, seaborn画图
+
+python基础语法：
+#python基础语法: print,list,dictionary,if判断语句,for loop, while True loop,
+#def function, class类
+list_1=[0,1,2,3,4,5,6,7,8,9]
+dict_1={'key_1':[0,1,2,3,4],
+        'key_2':[5,6,7,8,9]}#dict包含的key-value键值对
+
+#计算符号+-*/，**是平方，//得最大整除数，%得余数，=是赋值，==是等于
+
+for i in list_1:
+    if i%3==0:
+        print('奇数')
+    else:
+        print('偶数')
+#for loop需要定义至少一个变量，让它在一个区间内循环,这里实现了判断列表各元素奇偶数的功能
+list_2=[]
+i=0
+while True:
+    if i<10:
+        list_1.pop()
+        list_2.append(i)
+        i+=1
+    else:
+        break
+#while loop默认是True的无限循环，希望循环结束需要加上break，如果不是想要跳过是continue
+print(list_1,list_2)
+
+import math
+def circle_area(r):
+    if r<10000:
+        y=math.pi*r**2
+        return format(y,'.2f')#这里将输出值保留2位小数
+    elif r>=10000:
+        return r
+
+#调用函数
+circle_area(20001)
+result=list(map(circle_area,list_2))
+print(result)
+
+class Company():
+    greeting='Hello, this is Texas Ins'
+    
+    def __init__(self,state,city,name='Texas Ins'):
+        self.name=name
+        self.state=state
+        self.city=city
+    def staff(self,amount,condition):#self在这里可以用于直接调用__init__方法里的实参
+        location=self.state+'_'+self.city
+        
+        print(location.title(),amount,condition)
+    
+company_1=Company('Ohio','Cincinnati',name='GoodYear')
+company_1.staff(500,'health')    
+
+数据分析--numpy包
+import numpy as np
+arr_1=np.array([[1,2,3,4],
+               [2,2,3,4]])#建立np.array时注意(),如果是matrix，需要多框一个[]
+arr_2=np.array([[2,2,3,4],
+                [3,2,3,4]])
+mat_1=np.matrix([[9,8,7,6,1],
+                 [5,0,4,3,7],
+                 [3,4,2,1,8]])
+dot_multi=np.dot(arr_1.T,arr_2)#矩阵乘法：点乘
+dot_multi
+
+m=np.random.uniform(10,50)#uniform每次只会输出一个数字(floor,ceiling)
+n=np.random.randn(4,3)#randn输出x列y行的元素为(0,1)之间的矩阵
+p=np.random.random((2,3,4))#random((x,y,z))输出x个矩阵分别是y行z列
+print(m)
+print('\n')
+print(n)
+print('\n')
+print(p)
+
+np.sum(mat_1,axis=1)#axis=0是列，=1是行(参考https://zhuanlan.zhihu.com/p/432981099)
+#np聚合函数可以为ndarray按行列求和
+
+数据分析--pandas包
+#数据分析-pandas:pd.Series, pd.DataFrame, df.groupby()['col'].sum()...,loc/iloc函数, 
+#pd.to_datetime
+import pandas as pd
+ser_1=pd.Series([2,2,3,4,5,6],index=[1,2,3,4,5,6])
+#series可以保存一列数组和一列index，如未指定，自动从0排序
+print(ser_1)
+
+df_1=pd.DataFrame(ser_1,columns=['num'])
+#pandas索引可以是整数也可以定义的labels(str abcd啥的)，默认整数索引用loc操作，标签索引用iloc操作
+print(df_1)
+df_1
+
+#对df增加列,可以直接添加一列也可以把另一个df concat上来
+df_1['name']=['lee','yondu','canbi','james','frog','mathew']
+df_2=pd.DataFrame(data=mat_1,columns=['a','b','c','d','e'])
+df_1=pd.concat([df_1,df_2],axis=1).reset_index().rename(
+    columns={'a':'age','b':'state','c':'city','d':'zip','e':'tel'})
+#注意reset_index,同时可以顺手把column name改了
+df_1['age']=df_1['age'].map(lambda x: np.random.uniform(18,25))
+df_1['age']=df_1['age'].astype('int32')
+#创建使用lambda函数结合random.choice给state列随机填入state name
+state=['Ohio','California','Kentucky','Illinoii']
+df_1['state']=df_1['state'].map(lambda x: np.random.choice(state))
+
+city={'Ohio':'Columbus','California':'San Josh','Kentucky':'New Port','Illinoii':'Chicago'}
+zip={'Ohio':100,'California':900,'Kentucky':300,'Illinoii':500}
+#使用map函数按state给city和zipcode赋值
+df_1['city']=df_1['state'].map(city)
+df_1['zip']=df_1['state'].map(zip)
+df_1['tel']=np.nan
+df_1
+#切片查询，整数索引用loc，标签索引用iloc
+print(df_1.loc[0:3,'name':'city'])
+print(df_1.loc[(df_1['age']>=20)&(df_1['state']=='Ohio')])#可以使用多个判断条件查询
+df_1
+#df按照某几列进行聚合用groupby
+origin_ratio=(df_1.groupby(['state','city'])['name'].count()/
+              len(df_1)).apply(lambda x: format('%.2f'%x))
+origin_ratio.reset_index().rename(columns={'name':'ratio'})
+
+map/apply搭配lambda的万能方法
+print(df_1['age'])
+#map是把一个function作用到df的函数
+#lambda用于定义简单函数
+df_1['age']=df_1['age'].map(lambda x: x+1)
+df_1
+#apply可以同时处理多个变量
+
+#format可以用于处理保留小数
+origin_ratio=(df_1.groupby(['state','city'])['name'].count()/
+              len(df_1)).apply(lambda x: '{:.2%}'.format(x))
+
+
+​
